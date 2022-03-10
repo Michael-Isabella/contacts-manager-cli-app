@@ -49,21 +49,35 @@ public class ContactApp {
 
     public void AddContact() {
         // adding a contact
+        String fullname;
+        String tempString;
         Scanner get = new Scanner(System.in);
-        System.out.print("Enter your fullname: ");
-        String fullname = get.nextLine();
+        do {
+            System.out.print("Enter your fullname: ");
+            fullname = get.nextLine().trim();
+
+            if (this.myContact.containsKey(fullname)) {
+                System.out.print("There's already a contact named " + fullname + " Do you want to overwrite it? (Yes/No) ");
+                String answer = get.nextLine();
+                if (answer.equalsIgnoreCase("yes")) {
+                    break;
+                }
+            } else {
+                break;
+            }
+        } while(true);
+
         do {
             System.out.print("Enter your phone number: ");
-            String phoneNumber = get.nextLine();
+            String phoneNumber = get.nextLine().trim();
 
             Pattern pattern = Pattern.compile("^\\d{10}$");
             Matcher matcher = pattern.matcher(phoneNumber);
 
             if(matcher.matches()) {
-                String tempString = phoneNumber.substring(0,3) + "-"
+                tempString = phoneNumber.substring(0,3) + "-"
                         + phoneNumber.substring(3,6) + "-"
                         + phoneNumber.substring(6,10);
-                this.myContact.put(fullname, tempString);
                 break;
             } else {
                 System.out.println("Invaild phone number input.");
@@ -71,7 +85,7 @@ public class ContactApp {
             }
         } while(true);
 
-
+        this.myContact.put(fullname, tempString);
         System.out.println();
     }
 
