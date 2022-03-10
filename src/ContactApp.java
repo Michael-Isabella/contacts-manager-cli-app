@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ContactApp {
 
@@ -36,14 +38,41 @@ public class ContactApp {
     }
 
     public void ViewContacts() {
+        System.out.println(
+                "Name            | Phone number    |\n" +
+                "-----------------------------------");
         for(Map.Entry<String, String> contact : this.myContact.entrySet()) {
-            System.out.println(contact.getKey());
-            System.out.println(contact.getValue());
+            System.out.printf("%-15s | %-15s |%n",contact.getKey(),contact.getValue());
         }
+        System.out.println();
     }
 
-    public void AddContact(String fullname, String phoneNumber) {
-        this.myContact.put(fullname, phoneNumber);
+    public void AddContact() {
+        // adding a contact
+        Scanner get = new Scanner(System.in);
+        System.out.print("Enter your fullname: ");
+        String fullname = get.nextLine();
+        do {
+            System.out.print("Enter your phone number: ");
+            String phoneNumber = get.nextLine();
+
+            Pattern pattern = Pattern.compile("^\\d{10}$");
+            Matcher matcher = pattern.matcher(phoneNumber);
+
+            if(matcher.matches()) {
+                String tempString = phoneNumber.substring(0,3) + "-"
+                        + phoneNumber.substring(3,6) + "-"
+                        + phoneNumber.substring(6,10);
+                this.myContact.put(fullname, tempString);
+                break;
+            } else {
+                System.out.println("Invaild phone number input.");
+                System.out.println();
+            }
+        } while(true);
+
+
+        System.out.println();
     }
 
     public String SearchByName(String searchName) {
@@ -118,16 +147,9 @@ public class ContactApp {
                 case "1": {
                     // this views contacts
                     ViewContacts();
-                    System.out.println();
                 }break;
                 case "2": {
-                    // adding a contact
-                    System.out.print("Enter your fullname: ");
-                    String fullname = get.nextLine();
-                    System.out.print("Enter your phone number: ");
-                    String phoneNumber = get.nextLine();
-                    AddContact(fullname, phoneNumber);
-                    System.out.println();
+                    AddContact();
                 }break;
                 case "3": {
                     System.out.print("Enter fullname to search for: ");
