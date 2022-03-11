@@ -1,5 +1,9 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +21,8 @@ public class ContactApp {
     public String filename = "contacts.txt";
     Path contactsDirectory;
     Path contactsFileName;
+    DefaultTableModel tableModel;
+    JTable table;
 
     public TreeMap<String, String> myContact;
 
@@ -187,35 +193,98 @@ public class ContactApp {
         WriteMyContacts();
     }
 
-    public static void main(String[] args) {
-        ContactApp App = new ContactApp();
-        App.Run();
-
+    public void Start() {
+        LoadMyContacts();
         JFrame frame = new JFrame();
         frame.setLayout(null);
 
-        String data[][] = {
-                {"Michael","670000"},
-                {"Isabella","780000"},
-                {"Justin","700000"}
-        };
-        String column[] = {"Name","Phone"};
-        JTable table = new JTable(data, column);
+//        String data[][] = {
+//                {"Michael","670000"},
+//                {"Isabella","780000"},
+//                {"Justin","700000"}
+//        };
+//        String column[] = {"Name","Phone"};
+//        JTable table = new JTable(data, column);
+        tableModel = new DefaultTableModel();
+        table = new JTable(tableModel);
+        table.setShowGrid(true);
+        table.setShowVerticalLines(true);
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Color.GRAY);
+        table.setGridColor(Color.RED);
+
+        tableModel.addColumn("Name");
+        tableModel.addColumn("Phone Number");
 
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBounds(0,0,250,300);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
+        JLabel fullNameLabel = new JLabel("Full Name");
+        fullNameLabel.setBounds(0,320,100, 25);
 
-        JPanel panel = new JPanel();
-        panel.setSize(400, 200);
-        panel.add(scrollPane);
+        JTextField fullNameBox = new JTextField();
+        fullNameBox.setBounds(0,340,250,30);
 
-        frame.add(panel);
+
+        JLabel phoneNumberLabel = new JLabel("Phone Number");
+        phoneNumberLabel.setBounds(0,370,100, 25);
+
+        JTextField phoneNumberBox = new JTextField();
+        phoneNumberBox.setBounds(0,400,250,30);
+
+        JButton viewButton = new JButton("View Contacts");
+        viewButton.setBounds(300,25,150,30);
+
+        JButton searchButton = new JButton("Search Contacts");
+        searchButton.setBounds(300,75,150,30);
+
+        JButton deleteButton = new JButton("Delete Contact");
+        deleteButton.setBounds(300,125,150,30);
+
+        JButton addButton = new JButton("Add Contact");
+        addButton.setBounds(300,175,150,30);
+
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tableModel.setRowCount(0);
+
+                for(Map.Entry<String, String> contact : myContact.entrySet()) {
+                    tableModel.insertRow(0, new Object[]{contact.getKey(), contact.getValue()});
+                }
+            }
+        });
+
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+        frame.add(scrollPane);
+        frame.add(fullNameBox);
+        frame.add(fullNameLabel);
+        frame.add(phoneNumberBox);
+        frame.add(phoneNumberLabel);
+        frame.add(addButton);
+        frame.add(viewButton);
+        frame.add(searchButton);
+        frame.add(deleteButton);
 
         frame.setResizable(false);
         frame.setSize(500, 500);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+    }
+
+
+    public static void main(String[] args) {
+        ContactApp App = new ContactApp();
+        App.Start();
+
 
     }
 }
