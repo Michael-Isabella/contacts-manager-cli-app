@@ -4,6 +4,8 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +23,7 @@ public class ContactApp {
     public String filename = "contacts.txt";
     Path contactsDirectory;
     Path contactsFileName;
+
     DefaultTableModel tableModel;
     JTable table;
 
@@ -198,13 +201,6 @@ public class ContactApp {
         JFrame frame = new JFrame();
         frame.setLayout(null);
 
-//        String data[][] = {
-//                {"Michael","670000"},
-//                {"Isabella","780000"},
-//                {"Justin","700000"}
-//        };
-//        String column[] = {"Name","Phone"};
-//        JTable table = new JTable(data, column);
         tableModel = new DefaultTableModel();
         table = new JTable(tableModel);
         table.setShowGrid(true);
@@ -225,7 +221,6 @@ public class ContactApp {
 
         JTextField fullNameBox = new JTextField();
         fullNameBox.setBounds(0,340,250,30);
-
 
         JLabel phoneNumberLabel = new JLabel("Phone Number");
         phoneNumberLabel.setBounds(0,370,100, 25);
@@ -251,7 +246,7 @@ public class ContactApp {
                 tableModel.setRowCount(0);
 
                 for(Map.Entry<String, String> contact : myContact.entrySet()) {
-                    tableModel.insertRow(0, new Object[]{contact.getKey(), contact.getValue()});
+                    tableModel.insertRow(tableModel.getRowCount(), new Object[]{contact.getKey(), contact.getValue()});
                 }
             }
         });
@@ -259,7 +254,74 @@ public class ContactApp {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                tableModel.setRowCount(0);
 
+                String fullname = fullNameBox.getText();
+                if(fullname.length() == 0) { JOptionPane.showMessageDialog(frame, "Input a name!"); return; }
+                String phoneNumber = phoneNumberBox.getText();
+                if(phoneNumber.length() == 0) { JOptionPane.showMessageDialog(frame, "Input a phone number!"); return; }
+
+                if (myContact.containsKey(fullname)) {
+                    int selectedOption = JOptionPane.showConfirmDialog(frame, "Add anyway?", "Contact already exist!", JOptionPane.YES_NO_OPTION);
+                    if (selectedOption != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                }
+
+                Pattern pattern = Pattern.compile("^\\d{10}$");
+                Matcher matcher = pattern.matcher(phoneNumber);
+                String tempString;
+                if(matcher.matches()) {
+                    tempString = phoneNumber.substring(0,3) + "-"
+                            + phoneNumber.substring(3,6) + "-"
+                            + phoneNumber.substring(6,10);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Invalid phone number!");
+                    return;
+                }
+
+                myContact.put(fullname, tempString);
+                fullNameBox.setText("");
+                phoneNumberBox.setText("");
+            }
+        });
+
+        deleteButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tableModel.setRowCount(0);
+
+                String fullname = fullNameBox.getText();
+                if(fullname.length() == 0) { JOptionPane.showMessageDialog(frame, "Input a name!"); return; }
+
+                myContact.remove(fullname);
+                fullNameBox.setText("");
+                phoneNumberBox.setText("");
+            }
+        });
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tableModel.setRowCount(0);
+
+                String searchName = fullNameBox.getText();
+                if(searchName.length() == 0) { JOptionPane.showMessageDialog(frame, "Input a name!"); return; }
+
+                if(myContact.containsKey(searchName)) {
+                    tableModel.insertRow(0, new Object[]{searchName, myContact.get(searchName)});
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Name not found.");
+                }
+                fullNameBox.setText("");
+                phoneNumberBox.setText("");
+            }
+        });
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                WriteMyContacts();
             }
         });
 
@@ -277,14 +339,10 @@ public class ContactApp {
         frame.setSize(500, 500);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
     }
-
 
     public static void main(String[] args) {
         ContactApp App = new ContactApp();
         App.Start();
-
-
     }
 }
