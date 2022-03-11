@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -188,5 +190,32 @@ public class ContactApp {
     public static void main(String[] args) {
         ContactApp App = new ContactApp();
         App.Run();
+
+        JFrame frame = new JFrame();
+        frame.setLayout(null);
+
+        String data[][] = {
+                {"Michael","670000"},
+                {"Isabella","780000"},
+                {"Justin","700000"}
+        };
+        String column[] = {"Name","Phone"};
+        JTable table = new JTable(data, column);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+
+        JPanel panel = new JPanel();
+        panel.setSize(400, 200);
+        panel.add(scrollPane);
+
+        frame.add(panel);
+
+        frame.setResizable(false);
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
     }
 }
