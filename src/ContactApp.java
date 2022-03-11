@@ -26,13 +26,43 @@ public class ContactApp {
 
     DefaultTableModel tableModel;
     JTable table;
+    String countryCode = "+1";
 
-    public TreeMap<String, String> myContact;
+    public class Person {
+        String areaCode;
+        String phoneNumber;
+        public Person(String areaCode, String phoneNumber) {
+            this.areaCode = areaCode;
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getAreaCode() {
+            return areaCode;
+        }
+
+        public void setAreaCode(String areaCode) {
+            this.areaCode = areaCode;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+    }
+
+
+//    public TreeMap<String, String> myContact;
+    public TreeMap<String, Person> myContact;
+
 
     public ContactApp() {
         this.myContact = new TreeMap<>();
         this.contactsDirectory =  Paths.get(this.directory);
         this.contactsFileName = Paths.get(this.directory, this.filename);
+        this.countryCode = "";
     }
 
     private void LoadMyContacts() {
@@ -41,75 +71,75 @@ public class ContactApp {
             for (String contact : contactBook) {
                 String [] temp = contact.split(",");
 
-                this.myContact.put(temp[0], temp[1]);
+                this.myContact.put(temp[0], new Person(temp[1], temp[2]));
             }
         } catch (IOException e) {
             System.out.println("cant read contactBook");
         }
     }
 
-    public void ViewContacts() {
-        System.out.println(
-                "Name            | Phone number    |\n" +
-                "-----------------------------------");
-        for(Map.Entry<String, String> contact : this.myContact.entrySet()) {
-            System.out.printf("%-15s | %-15s |%n",contact.getKey(),contact.getValue());
-        }
-        System.out.println();
-    }
+//    public void ViewContacts() {
+//        System.out.println(
+//                "Name            | Phone number    |\n" +
+//                "-----------------------------------");
+//        for(Map.Entry<String, String> contact : this.myContact.entrySet()) {
+//            System.out.printf("%-15s | %-15s |%n",contact.getKey(),contact.getValue());
+//        }
+//        System.out.println();
+//    }
 
-    public void AddContact() {
-        // adding a contact
-        String fullname;
-        String tempString;
-        Scanner get = new Scanner(System.in);
-        do {
-            System.out.print("Enter your fullname: ");
-            fullname = get.nextLine().trim();
-
-            if (this.myContact.containsKey(fullname)) {
-                System.out.print("There's already a contact named " + fullname + " Do you want to overwrite it? (Yes/No) ");
-                String answer = get.nextLine();
-                if (answer.equalsIgnoreCase("yes")) {
-                    break;
-                }
-            } else {
-                break;
-            }
-        } while(true);
-
-        do {
-            System.out.print("Enter your phone number: ");
-            String phoneNumber = get.nextLine().trim();
-
-            Pattern pattern = Pattern.compile("^\\d{10}$");
-            Matcher matcher = pattern.matcher(phoneNumber);
-
-            if(matcher.matches()) {
-                tempString = phoneNumber.substring(0,3) + "-"
-                        + phoneNumber.substring(3,6) + "-"
-                        + phoneNumber.substring(6,10);
-                break;
-            } else {
-                System.out.println("Invaild phone number input.");
-                System.out.println();
-            }
-        } while(true);
-
-        this.myContact.put(fullname, tempString);
-        System.out.println();
-    }
-
-    public String SearchByName(String searchName) {
-        if(this.myContact.containsKey(searchName)) {
-           return (searchName + "|" + this.myContact.get(searchName));
-        }
-        return "Name not found.";
-    }
-
-    public void DeleteContact(String name) {
-        this.myContact.remove(name);
-    }
+//    public void AddContact() {
+//        // adding a contact
+//        String fullname;
+//        String tempString;
+//        Scanner get = new Scanner(System.in);
+//        do {
+//            System.out.print("Enter your fullname: ");
+//            fullname = get.nextLine().trim();
+//
+//            if (this.myContact.containsKey(fullname)) {
+//                System.out.print("There's already a contact named " + fullname + " Do you want to overwrite it? (Yes/No) ");
+//                String answer = get.nextLine();
+//                if (answer.equalsIgnoreCase("yes")) {
+//                    break;
+//                }
+//            } else {
+//                break;
+//            }
+//        } while(true);
+//
+//        do {
+//            System.out.print("Enter your phone number: ");
+//            String phoneNumber = get.nextLine().trim();
+//
+//            Pattern pattern = Pattern.compile("^\\d{10}$");
+//            Matcher matcher = pattern.matcher(phoneNumber);
+//
+//            if(matcher.matches()) {
+//                tempString = phoneNumber.substring(0,3) + "-"
+//                        + phoneNumber.substring(3,6) + "-"
+//                        + phoneNumber.substring(6,10);
+//                break;
+//            } else {
+//                System.out.println("Invaild phone number input.");
+//                System.out.println();
+//            }
+//        } while(true);
+//
+//        this.myContact.put(fullname, tempString);
+//        System.out.println();
+//    }
+//
+//    public String SearchByName(String searchName) {
+//        if(this.myContact.containsKey(searchName)) {
+//           return (searchName + "|" + this.myContact.get(searchName));
+//        }
+//        return "Name not found.";
+//    }
+//
+//    public void DeleteContact(String name) {
+//        this.myContact.remove(name);
+//    }
 
     public void WriteMyContacts() {
         try {
@@ -134,8 +164,8 @@ public class ContactApp {
 
         ArrayList<String> templist = new ArrayList<>();
 
-        for(Map.Entry<String, String> contact : this.myContact.entrySet()) {
-            templist.add(contact.getKey() + "," + contact.getValue());
+        for(Map.Entry<String, Person> contact : this.myContact.entrySet()) {
+            templist.add(contact.getKey() + "," + contact.getValue().getAreaCode() + "," + contact.getValue().getPhoneNumber());
         }
 
         try{
@@ -145,56 +175,56 @@ public class ContactApp {
         }
     }
 
-    public void Run() {
-        // this loads the readme
-        LoadMyContacts();
-
-        System.out.println("*-----| Welcome to our Contact Book Application |-----*");
-        System.out.println();
-        System.out.println("Please Choose from the below list:");
-        System.out.println();
-
-        Scanner get = new Scanner(System.in);
-        String input;
-        do {
-
-            System.out.println("" +
-                    "1. View contacts.\n" +
-                    "2. Add a new contact.\n" +
-                    "3. Search a contact by name.\n" +
-                    "4. Delete an existing contact.\n" +
-                    "5. Exit.\n" +
-                    "Enter an option (1, 2, 3, 4 or 5):");
-            input = get.next();
-            get.nextLine();
-
-            switch(input) {
-                case "1": {
-                    // this views contacts
-                    ViewContacts();
-                }break;
-                case "2": {
-                    AddContact();
-                }break;
-                case "3": {
-                    System.out.print("Enter fullname to search for: ");
-                    String searchName = get.nextLine();
-                    System.out.println(SearchByName(searchName));
-                    System.out.println();
-                }break;
-                case "4": {
-                    System.out.print("Enter fullname to delete from contact book: ");
-                    String searchName = get.nextLine();
-                    DeleteContact(searchName);
-                }break;
-            }
-
-        } while (!input.equals("5"));
-
-        System.out.println("Application Closing.");
-
-        WriteMyContacts();
-    }
+//    public void Run() {
+//        // this loads the readme
+//        LoadMyContacts();
+//
+//        System.out.println("*-----| Welcome to our Contact Book Application |-----*");
+//        System.out.println();
+//        System.out.println("Please Choose from the below list:");
+//        System.out.println();
+//
+//        Scanner get = new Scanner(System.in);
+//        String input;
+//        do {
+//
+//            System.out.println("" +
+//                    "1. View contacts.\n" +
+//                    "2. Add a new contact.\n" +
+//                    "3. Search a contact by name.\n" +
+//                    "4. Delete an existing contact.\n" +
+//                    "5. Exit.\n" +
+//                    "Enter an option (1, 2, 3, 4 or 5):");
+//            input = get.next();
+//            get.nextLine();
+//
+//            switch(input) {
+//                case "1": {
+//                    // this views contacts
+//                    ViewContacts();
+//                }break;
+//                case "2": {
+//                    AddContact();
+//                }break;
+//                case "3": {
+//                    System.out.print("Enter fullname to search for: ");
+//                    String searchName = get.nextLine();
+//                    System.out.println(SearchByName(searchName));
+//                    System.out.println();
+//                }break;
+//                case "4": {
+//                    System.out.print("Enter fullname to delete from contact book: ");
+//                    String searchName = get.nextLine();
+//                    DeleteContact(searchName);
+//                }break;
+//            }
+//
+//        } while (!input.equals("5"));
+//
+//        System.out.println("Application Closing.");
+//
+//        WriteMyContacts();
+//    }
 
     public void Start() {
         LoadMyContacts();
@@ -207,13 +237,20 @@ public class ContactApp {
         table.setShowVerticalLines(true);
         JTableHeader header = table.getTableHeader();
         header.setBackground(Color.GRAY);
-        table.setGridColor(Color.RED);
+        table.setGridColor(Color.BLUE);
 
         tableModel.addColumn("Name");
+        tableModel.addColumn("Area Code");
         tableModel.addColumn("Phone Number");
 
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.getColumnModel().getColumn(0).setPreferredWidth(100);
+        table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(2).setPreferredWidth(150);
+
+
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBounds(0,0,250,300);
+        scrollPane.setBounds(0,0,300,300);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
         JLabel fullNameLabel = new JLabel("Full Name");
@@ -245,8 +282,12 @@ public class ContactApp {
             public void actionPerformed(ActionEvent e) {
                 tableModel.setRowCount(0);
 
-                for(Map.Entry<String, String> contact : myContact.entrySet()) {
-                    tableModel.insertRow(tableModel.getRowCount(), new Object[]{contact.getKey(), contact.getValue()});
+                for(Map.Entry<String, Person> contact : myContact.entrySet()) {
+                    Person tempPerson = contact.getValue();
+                    String areaCode = tempPerson.getAreaCode();
+                    String phoneNumber = tempPerson.getPhoneNumber();
+
+                    tableModel.insertRow(tableModel.getRowCount(), new Object[]{contact.getKey(), areaCode, phoneNumber});
                 }
             }
         });
@@ -280,7 +321,8 @@ public class ContactApp {
                     return;
                 }
 
-                myContact.put(fullname, tempString);
+
+                myContact.put(fullname, new Person(countryCode, tempString));
                 fullNameBox.setText("");
                 phoneNumberBox.setText("");
             }
@@ -309,7 +351,11 @@ public class ContactApp {
                 if(searchName.length() == 0) { JOptionPane.showMessageDialog(frame, "Input a name!"); return; }
 
                 if(myContact.containsKey(searchName)) {
-                    tableModel.insertRow(0, new Object[]{searchName, myContact.get(searchName)});
+                    Person tempPerson = myContact.get(searchName);
+                    String areaCode = tempPerson.getAreaCode();
+                    String phoneNumber = tempPerson.getPhoneNumber();
+
+                    tableModel.insertRow(tableModel.getRowCount(), new Object[]{searchName, areaCode, phoneNumber});
                 } else {
                     JOptionPane.showMessageDialog(frame, "Name not found.");
                 }
@@ -328,16 +374,38 @@ public class ContactApp {
 
         String[] countryList = {"US", "MX", "FR", "DE", "AU"};
 
-//Create the combo box, select item at index 4.
-//Indices start at 0, so 4 specifies the pig.
         JComboBox countryBox = new JComboBox(countryList);
         countryBox.setSelectedIndex(0);
         countryBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                switch(countryBox.getSelectedIndex()) {
+                    case 0: {
+                        countryCode = "+1";
+                        break;
+                    }
+                    case 1: {
+                        countryCode = "+52";
+                        break;
+                    }
+                    case 2: {
+                        countryCode = "+33";
+                        break;
+                    }
+                    case 3: {
+                        countryCode = "+49";
+                        break;
+                    }
+                    case 4: {
+                        countryCode = "+61";
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
         });
+        countryBox.setBounds(300,400, 150, 30);
 
 
         frame.add(scrollPane);
@@ -349,6 +417,7 @@ public class ContactApp {
         frame.add(viewButton);
         frame.add(searchButton);
         frame.add(deleteButton);
+        frame.add(countryBox);
 
         frame.setResizable(false);
         frame.setSize(500, 500);
