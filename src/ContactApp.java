@@ -325,6 +325,21 @@ public class ContactApp {
             }
         });
 
+
+        String[] countryList = {"US", "MX", "FR", "DE", "AU"};
+
+//Create the combo box, select item at index 4.
+//Indices start at 0, so 4 specifies the pig.
+        JComboBox countryBox = new JComboBox(countryList);
+        countryBox.setSelectedIndex(0);
+        countryBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+
         frame.add(scrollPane);
         frame.add(fullNameBox);
         frame.add(fullNameLabel);
